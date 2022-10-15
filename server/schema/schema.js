@@ -1,5 +1,5 @@
 // take the sample data
-const { projects, clients } = require('../sampleData.js');
+// const { projects, clients } = require('../sampleData.js');
 
 // Mongoose Models
 const Project = require('../models/Project')
@@ -7,7 +7,14 @@ const Client = require('../models/Client')
 
 // bring anything we want from graphql using destructuring
 // bring Object type from graphql
-const { GraphQLObjectType, GraphQLList, GraphQLID, GraphQLString, GraphQLSchema } = require('graphql');
+const {
+    GraphQLObjectType,
+    GraphQLList,
+    GraphQLID,
+    GraphQLString,
+    GraphQLSchema,
+    GraphQLNonNull,
+} = require('graphql');
 
 // client type
 const ClientType = new GraphQLObjectType({
@@ -76,6 +83,43 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+// Mutations
+const mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        // Add a client
+        addClient: {
+            type: ClientType,
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                email: { type: GraphQLNonNull(GraphQLString) },
+                phone: { type: GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, args) {
+                const client = new Client({
+                    name: args.name,
+                    email: args.email,
+                    phone: args.phone,
+                });
+                return client.save();
+            }
+        },
+
+        // Delete Client
+        deleteClient: {
+            type: ClientType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                return Client.findByIdAndRemove(args.id);
+                // TODO -> if a client assign to a project then that should be remove as well
+            }
+        }
+    }
+})
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation
 })
