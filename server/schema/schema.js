@@ -14,6 +14,7 @@ const {
     GraphQLString,
     GraphQLSchema,
     GraphQLNonNull,
+    GraphQLEnumType,
 } = require('graphql');
 
 // client type
@@ -114,6 +115,83 @@ const mutation = new GraphQLObjectType({
             resolve(parent, args) {
                 return Client.findByIdAndRemove(args.id);
                 // TODO -> if a client assign to a project then that should be remove as well
+            }
+        },
+
+        // Add a project
+        addProject: {
+            type: ProjectType,
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                description: { type: GraphQLNonNull(GraphQLString) },
+                status: {
+                    type: new GraphQLEnumType({
+                        name: 'ProjectStatus',
+                        values: {
+                            'new': { value: 'Not Started' },
+                            'progress': { value: 'In Progress' },
+                            'completed': { value: 'Completed' },
+                        }
+                    }),
+                    defaultValue: 'Not Started'
+                },
+                clientId: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                const project = new Project({
+                    name: args.name,
+                    description: args.description,
+                    status: args.status,
+                    clientId: args.clientId,
+                });
+                return project.save();
+            }
+        },
+
+        // delete a project
+        deleteProject: {
+            type: ProjectType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) }
+            },
+            resolve(parent, args) {
+                return Project.findByIdAndRemove(args.id);
+            }
+        },
+
+        // update a Project
+        updateProject: {
+            type: ProjectType,
+            args: {
+                id: { type: GraphQLNonNull(GraphQLID) },
+                name: { type: GraphQLString },
+                description: { type: GraphQLString },
+                status: {
+                    type: new GraphQLEnumType({
+                        name: 'ProjectStatusUpdate',
+                        values: {
+                            'new': { value: 'Not Started' },
+                            'progress': { value: 'In Progress' },
+                            'completed': { value: 'Completed' },
+                        }
+                    }),
+                },
+                // Client ID for the project update
+                // clientId: { type: GraphQLNonNull(GraphQLID) },
+            },
+            resolve(parent, args) {
+                return Project.findByIdAndUpdate(
+                    args.id,
+                    {
+                        $set: {
+                            name: args.name,
+                            description: args.description,
+                            status: args.status,
+                        },
+                    },
+                    // in this update there are no any existing details like this so we have to put it under "NEW"
+                    { new: true }
+                );
             }
         }
     }
