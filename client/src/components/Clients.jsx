@@ -3,9 +3,9 @@ import ClientRow from './ClientRow'
 import { GET_CLIENTS } from '../queries/clientQueries'
 import Spinner from './Spinner'
 
-
 export default function Clients() {
 
+    // Apollo provider is a kind of state managemer
     const { loading, error, data } = useQuery(GET_CLIENTS)
 
     if (loading) return <p><Spinner /></p>
@@ -18,7 +18,7 @@ export default function Clients() {
                         <tr>
                             <th>Name</th>
                             <th>E-Mail</th>
-                            <th>Phone</th>
+                            <th>Phone </th>
                             <th></th>
                         </tr>
                     </thead>
