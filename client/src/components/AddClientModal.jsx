@@ -67,7 +67,7 @@ const AddClientModal = () => {
                                     <input type="text" className="form-control" id='phone' value={phone} onChange={(e) => setPhone(e.target.value)} />
                                 </div>
                                 {/* (data-bs-dismissed) ---> this lead to close the modal after clicking on submit */}
-                                <button type='submit' data-bs-dismissed='modal' className="btn btn-secondary">Submit</button>
+                                <button type='submit' data-bs-dismissed='modal' className="btn btn-secondary ">Submit</button>
                             </form>
                         </div>
                     </div>
